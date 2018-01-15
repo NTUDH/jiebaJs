@@ -4,13 +4,30 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <meta charset="utf-8" />
     <title>jiebajs</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+    <style type="text/css" media="screen">
+    	#button{
+    		margin-bottom: 15px;
+    		margin-top: 10px;
+    	}
+    </style>
 </head>
 <body>
-    <div>look into console...</div>
-	<textarea id="input_demo" cols="30" rows="10">我爸新学会了一项解决日常烦闷的活动，就是把以前的照片抱回办公室扫描保存，弄成电子版的。更无法接受的是，还居然放到网上来，时不时给我两张。这些积尘的化石居然突然重现，简直是招架不住。这个怀旧的阀门一旦打开，那就直到意识模糊都没停下来。
-	</textarea>
-	<button type="button" id="button">斷詞 !</button>
-	<textarea id="output_demo" cols="30" rows="10"></textarea>
+	<div class="container text-center mt-3">
+		<h5>input data</h5>
+		<div class="row flex-column">
+			<div class="col-12">
+				<textarea id="input_demo" cols="30" rows="10">我爸新学会了一项解决日常烦闷的活动，就是把以前的照片抱回办公室扫描保存，弄成电子版的。更无法接受的是，还居然放到网上来，时不时给我两张。这些积尘的化石居然突然重现，简直是招架不住。这个怀旧的阀门一旦打开，那就直到意识模糊都没停下来。
+				</textarea>				
+			</div>
+			<div class="col-12">
+				<button type="button" id="button">斷詞</button>	
+			</div>
+			<div class="col-12">
+				<textarea id="output_demo" cols="30" rows="10"></textarea>
+			</div>
+		</div>
+	</div>
 
     <script data-main="js/main" src="js/require.js"></script>
 </body>
