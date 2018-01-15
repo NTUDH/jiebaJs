@@ -1,75 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
-    <title>jieba-js demo</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <title>jiebajs</title>
+    <script data-main="js/main" src="js/require.js"></script>
 </head>
 <body>
-
-    <script src="jquery.js"></script>
-    <script src="require-jieba-js.js"></script>
-    <form onsubmit="return false;">
-    <table>
-        <tbody>
-            <tr>
-                <td>
-<textarea id="input">我來自北京清華大學</textarea>
-                </td>
-                <td>
-                    <textarea id="output"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <button type="submit">開始斷詞</button>
-                </td>
-                <td></td>
-            </tr>
-        </tbody>
-    </table>
-    </form>
-    
-    <script>
-        $(function () {
-            $("form").submit(function () {
-                var _text = $("#input").val();
-                $("#output").val("");
-                //console.log(_text);
-                var _submit = $(this).find("button");
-                _submit.attr("disabled", "disabled");
-                _submit.html("處理中...");
-                call_jieba_cut(_text, function (_result) {
-                    _result = _result.join(" ");
-                    while (_result.indexOf("  ") > -1) {
-                        _result = _result.replace(/  /g, ' ');
-                    }
-                    _result = _result.replace(/ \n /g, "\n");
-                    _result = _result.replace(/ \t /g, "\t");
-                    _result = _result.replace(/ \' /g, "'");
-                    _result = _result.replace(/\' /g, "'");
-                    _result = _result.trim();
-                    $("#output").val(_result);
-                    _submit.removeAttr("disabled");
-                    _submit.html("開始斷詞");
-                });
-                return false;
-            }).submit();
-        });
-    </script>
-    
-    <style>
-        table {
-            width: 100%;
-            height: calc(100vh - 30px);
-        }
-        textarea {
-            width: calc(100% - 10px);
-            height: calc(100vh - 80px);
-        }
-        button {
-            height: 45px;
-            width: calc(100% - 10%);
-        }
-    </style>
-    
+    <div>look into console...</div>    
 </body>
 </html>
