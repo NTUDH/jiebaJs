@@ -1,5 +1,4 @@
-
-jieba_parsing = function(dictionary, _callback) {
+require(["finalseg","data/dictionary"], function(finalseg, dictionary) {
     var trie = {}, // to be initialized
         FREQ = {},
         total = 0.0,
@@ -32,7 +31,7 @@ jieba_parsing = function(dictionary, _callback) {
         }
 
         return [trie, lfreq, ltotal];
-    };
+    }
 
     var initialize = function() {
         if (initialized === true) {
@@ -41,7 +40,7 @@ jieba_parsing = function(dictionary, _callback) {
         if (trie) {
             trie = {};
         }
-        //console.log("Building Trie...");
+        console.log("Building Trie...");
 
         var gar = gen_trie();
         trie = gar[0];
@@ -59,8 +58,8 @@ jieba_parsing = function(dictionary, _callback) {
         }
         initialized = true;
 
-        //console.log("Trie built!", trie);
-    };
+        console.log("Trie built!", trie);
+    }
 
     var get_DAG = function(sentence) {
         var N = sentence.length,
@@ -98,7 +97,7 @@ jieba_parsing = function(dictionary, _callback) {
             }
         }
         return DAG;
-    };
+    }
 
     var calc = function( sentence, DAG, idx, route ) {
         var N = sentence.length;
@@ -116,15 +115,15 @@ jieba_parsing = function(dictionary, _callback) {
             //console.log('max is', m);
             route[idx] = [m, candidates_x[candidates.indexOf(m)]];
         }
-    };
+    }
 
     var __cut_DAG = function(sentence) {
-        // finalseg has been implemented, so this is the case with HMM.
 
         var DAG = get_DAG(sentence);
         var route = {};
         var yieldValues = [];
-
+	
+	    console.log("DAG", DAG);
         calc(sentence, DAG, 0, route);
 
         var x = 0,
@@ -134,16 +133,20 @@ jieba_parsing = function(dictionary, _callback) {
         while(x < N) {
             var y = route[x][1]+1,
                 l_word = sentence.substring(x, y);
-            if (y - x === 1) {
+            if (y - x == 1) {
                 buf += l_word;
             }
             else {
                 if (buf.length > 0) {
-                    if (buf.length === 1) {
+                    if (buf.length == 1) {
                         yieldValues.push(buf);
+                        buf = "";
                     }
                     else {
-                        if (!(buf in FREQ)) {
+                        var FREQ_test = FREQ[buf];
+                        var find_buf = (FREQ_test === undefined || FREQ_test === null) ? false : true;
+                        if (!find_buf) {
+                            console.log("use hmm: "+buf); //debug
                             var recognized = finalseg.cut(buf);
                             for (t in recognized) {
                                 yieldValues.push(recognized[t]);
@@ -161,14 +164,22 @@ jieba_parsing = function(dictionary, _callback) {
             }
             x = y;
         }
-
-
+        
         if (buf.length > 0) {
-            if (buf.length === 1) {
+            if (buf.length == 1) {
                 yieldValues.push(buf);
             }
             else {
-                if (!(buf in FREQ)) {
+                //console.log("find in FREQ: " + buf); //debug
+                var find_buf = 0;
+                for(var bi in FREQ){
+                    if(buf == FREQ[bi]){
+                        find_buf = 1;
+                        break;
+                    }
+                }
+                if (find_buf == 0) {
+                    //console.log("cut: "+buf); //debug
                     var recognized = finalseg.cut(buf);
                     for (t in recognized) {
                         yieldValues.push(recognized[t]);
@@ -182,7 +193,7 @@ jieba_parsing = function(dictionary, _callback) {
             }
         }
         return yieldValues;
-    };
+    }
 
     var __cut_DAG_NO_HMM = function (sentence) {
         var re_eng = /[a-zA-Z0-9]/,
@@ -190,10 +201,10 @@ jieba_parsing = function(dictionary, _callback) {
             yieldValues = [];
 
         var DAG = get_DAG(sentence);
-        //console.log("DAG", DAG);
+        console.log("DAG", DAG);
         calc(sentence, DAG, 0, route);
 
-        //console.log(route);
+        console.log(route);
 
         var x = 0,
             buf = '',
@@ -202,8 +213,8 @@ jieba_parsing = function(dictionary, _callback) {
         while (x < N) {
             y = route[x][1] + 1;
             l_word = sentence.substring(x, y);
-            //console.log(l_word, l_word.match(re_eng))
-            if (l_word.match(re_eng) && l_word.length === 1) {
+            console.log(l_word, l_word.match(re_eng))
+            if (l_word.match(re_eng) && l_word.length == 1) {
                 buf += l_word;
                 x = y;
             }
@@ -221,7 +232,7 @@ jieba_parsing = function(dictionary, _callback) {
             buf = '';
         }
         return yieldValues;
-    };
+    }
 
     var cut = function(sentence){
         var cut_all = false,
@@ -236,14 +247,13 @@ jieba_parsing = function(dictionary, _callback) {
 
         for (b in blocks) {
             var blk = blocks[b];
-            //console.log(b, blk);
-            if (blk.length === 0) {
+            if (blk.length == 0) {
                 continue;
             }
 
             if (blk.match(re_han)) {
                 var cutted = cut_block(blk);
-                //console.log("matches", cutted);
+                console.log("matches", cutted);
                 for (w in cutted) {
                     var word = cutted[w];
                     yieldValues.push(word);
@@ -268,92 +278,10 @@ jieba_parsing = function(dictionary, _callback) {
             }
         }
         return yieldValues;
-    };
-    
-    jieba_cut = cut;
+    }
 
     // initialize when the file loads (no lazy-loading yet):
     initialize();
 
-    if (typeof(resume_jieba_cut) === "function") {
-        resume_jieba_cut();
-    }
-    
-    if (typeof(_callback) === "function") {
-        _callback();
-    }
-};
-
-node_jieba_parsing = function (_dicts, _text, _callback) {
-    if (typeof(_callback) !== "function") {
-        return;
-    }
-    
-    if (typeof(jieba_cut) === "function") {
-        var _result = jieba_cut(_text);
-        //console.log(_result.join(" "));
-        _callback(_result);
-        return _result;
-    }
-    
-    var _dict;
-    if (_dicts.length > 0) {
-        _dict = _dicts[0];
-    }
-    
-    for (var _i = 1; _i < _dicts.length; _i++) {
-        for (var _j = 0; _j < _dicts[_i].length; _j++) {
-            _dict.push(_dicts[_i][_j]);
-        }
-    }
-    
-    jieba_parsing(_dict, function () {  
-        var _result = jieba_cut(_text);
-        //console.log(_result.join(" "));
-        _callback(_result);
-    });
-};
-
-var _host = undefined;
-if (typeof(get_host) === "function") {
-    _host = get_host();
-    //console.log([1, _host, _host + "scripts/data/dictionary.js"]);
-}
-
-if (_host !== undefined) {
-    var _loaded = false;
-    
-    var _require_callback = function (_dictionary) {
-        _loaded = true;
-        if (typeof(JIEBA_CUSTOM_DICTIONARY) === "string") {
-            require([ JIEBA_CUSTOM_DICTIONARY ], function (_custom_dictionary) {
-                for (var _i = 0; _i < _custom_dictionary.length; _i++) {
-                    _dictionary.push(_custom_dictionary[_i]);
-                }
-                jieba_parsing(_dictionary);
-            });
-        }
-        else {
-            jieba_parsing(_dictionary);
-        }
-    };
-    
-    var _require_dictionary = function () {
-        try {
-            requirejs.config({
-                enforceDefine: true,
-                waitSeconds: 0,
-            });
-        }
-        catch (e) {
-            _require_dictionary();
-            return;
-        }
-        
-        require([ _host + "scripts/data/dictionary.js"], _require_callback);
-    };
-    
-    //$.get(_host + "scripts/data/dictionary.js", function () {
-    _require_dictionary();
-    //});
-}
+    console.log(cut("我爸新学会了一项解决日常烦闷的活动，就是把以前的照片抱回办公室扫描保存，弄成电子版的。更无法接受的是，还居然放到网上来，时不时给我两张。这些积尘的化石居然突然重现，简直是招架不住。这个怀旧的阀门一旦打开，那就直到意识模糊都没停下来。"));
+});
