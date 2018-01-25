@@ -170,7 +170,7 @@ require(["finalseg","data/dictionary"], function(finalseg, dictionary) {
                 yieldValues.push(buf);
             }
             else {
-                //console.log("find in FREQ: " + buf); //debug
+                console.log("find in FREQ: " + buf); //debug
                 var find_buf = 0;
                 for(var bi in FREQ){
                     if(buf == FREQ[bi]){
@@ -234,7 +234,6 @@ require(["finalseg","data/dictionary"], function(finalseg, dictionary) {
         return yieldValues;
     }
 
-    // HMM or not
     var cut = function(sentence, HMM){
         var cut_all = false,
             // HMM = true,
@@ -284,12 +283,16 @@ require(["finalseg","data/dictionary"], function(finalseg, dictionary) {
     // initialize when the file loads (no lazy-loading yet):
     initialize();
 
-
     document.querySelector('#button').onclick = function(){
         var input_data = document.querySelector("#input_demo").value;
-        var demo = cut(input_data, true);
+        var demo_1 = cut(input_data, true);
+        var demo_0 = cut(input_data, false);
 
-        console.log(demo);
-        document.querySelector('#output_demo').value = demo;
+        console.log(demo_1);
+        console.log(demo_0);
+
+        document.querySelector('#output_demo_1').value = demo_1;
+        document.querySelector('#output_demo_0').value = demo_0;
     };
+
 });
